@@ -52,6 +52,15 @@ impl KeyType {
         }
     }
 
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            KeyType::U32 => "u32",
+            KeyType::U64 => "u64",
+            KeyType::F64 => "f64",
+            KeyType::U128 => "u128",
+        }
+    }
+
     pub fn to_model_data_type(self) -> ModelDataType {
         match self {
             KeyType::U32 => ModelDataType::Int,
@@ -743,6 +752,7 @@ pub trait Model: Sync + Send {
 
     fn code(&self) -> String;
     fn function_name(&self) -> String;
+    fn model_name(&self) -> &'static str;
 
     fn standard_functions(&self) -> HashSet<StdFunctions> {
         return HashSet::new();
