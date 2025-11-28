@@ -50,6 +50,7 @@ fn train_model<T: TrainingKey>(model_type: &str,
         "radix28" => Box::new(RadixTable::new(data, 28)),
         "bradix" => Box::new(BalancedRadixModel::new(data)),
         "histogram" => Box::new(EquidepthHistogramModel::new(data)),
+        "optimal_pla" => Box::new(OptimalPLAModel::new(data)),
         _ => panic!("Unknown model type: {}", model_type),
     };
 

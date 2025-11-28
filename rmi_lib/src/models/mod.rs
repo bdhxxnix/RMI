@@ -16,6 +16,7 @@ mod normal;
 mod radix;
 mod stdlib;
 mod utils;
+mod optimal_pla;
 
 pub use balanced_radix::BalancedRadixModel;
 pub use cubic_spline::CubicSplineModel;
@@ -29,6 +30,7 @@ pub use normal::NormalModel;
 pub use radix::RadixModel;
 pub use radix::RadixTable;
 pub use stdlib::StdFunctions;
+pub use optimal_pla::OptimalPLAModel;
 
 use std::cmp::Ordering;
 use std::collections::HashSet;
