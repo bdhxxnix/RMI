@@ -70,6 +70,11 @@ fn main() {
              .short("d")
              .value_name("dir")
              .help("exports parameters to files in this directory (default: rmi_data)"))
+        .arg(Arg::with_name("output-path")
+             .long("output-path")
+             .short("o")
+             .value_name("dir")
+             .help("exports generated model files to this directory (default: current directory)"))
         .arg(Arg::with_name("no-errors")
              .long("no-errors")
              .help("do not save last-level errors, and modify the RMI function signature"))
@@ -112,6 +117,7 @@ fn main() {
     let fp = matches.value_of("input").unwrap();
 
     let data_dir = matches.value_of("data-path").unwrap_or("rmi_data");
+    let output_dir = matches.value_of("output-path").unwrap_or(".");
 
     if matches.value_of("namespace").is_some() && matches.value_of("param-grid").is_some() {
         panic!("Can only specify one of namespace or param-grid");
@@ -171,6 +177,16 @@ fn main() {
         );
         std::fs::create_dir_all(data_dir)
             .expect("The RMI data directory did not exist, and it could not be created.");
+    }
+
+    if !Path::new(output_dir).exists() {
+        info!(
+            "The RMI output directory specified {} does not exist. Creating it.",
+            output_dir
+        );
+        std::fs::create_dir_all(output_dir).expect(
+            "The RMI output directory did not exist, and it could not be created."
+        );
     }
 
     if let Some(param_grid) = matches.value_of("param-grid").map(|x| x.to_string()) {
@@ -234,8 +250,15 @@ fn main() {
                     }
 
                     if let Some(nmspc) = namespace {
-                        rmi_lib::output_rmi(&nmspc, trained_model, data_dir, key_type, true)
-                            .unwrap();
+                        rmi_lib::output_rmi(
+                            &nmspc,
+                            trained_model,
+                            data_dir,
+                            output_dir,
+                            key_type,
+                            true
+                        )
+                        .unwrap();
                     }
 
                     pbar.inc(1);
@@ -332,7 +355,15 @@ fn main() {
                 trained_model.build_time = 0;
             }
 
-            rmi_lib::output_rmi(&namespace, trained_model, data_dir, key_type, !no_errors).unwrap();
+            rmi_lib::output_rmi(
+                &namespace,
+                trained_model,
+                data_dir,
+                output_dir,
+                key_type,
+                !no_errors
+            )
+            .unwrap();
         } else {
             trace!("Skipping code generation due to CLI flag");
         }
