@@ -1,4 +1,5 @@
 mod codegen;
+mod binary;
 mod models;
 mod train;
 mod cache_fix;
@@ -12,3 +13,4 @@ pub use train::{train, train_for_size, train_bounded};
 pub use codegen::rmi_size;
 pub use codegen::output_rmi;
 pub use manifest::{CacheFixMetadata, LayerMetadata, ParameterDescriptor, ParamKind, ParamValue, RmiMetadata};
+pub use binary::{Model, Stage, RMIModel};

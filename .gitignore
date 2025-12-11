@@ -5,3 +5,8 @@ Cargo.lock
 *\#
 \#*
 rmi_data
+binary_models/
+rmi_models/
+
+binary_models/
+
