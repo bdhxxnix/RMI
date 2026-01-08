@@ -501,6 +501,7 @@ impl From<f64> for ModelInput {
         ModelInput::Float(f)
     }
 }
+#[derive(Clone, Copy, Debug)]
 pub enum ModelDataType {
     Int,
     Int128,
