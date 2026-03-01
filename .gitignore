@@ -8,6 +8,13 @@ rmi_data
 binary_models/
 rmi_models/
 
-include/
 binary_models/
 
+.vscode/
+
+binary_models/
+rmi_models/
+
+include/
+binary_models/
+rmi_models
