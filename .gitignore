@@ -5,3 +5,5 @@ Cargo.lock
 *\#
 \#*
 rmi_data
+.vscode/
+
