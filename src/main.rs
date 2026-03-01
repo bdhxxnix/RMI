@@ -28,6 +28,25 @@ use std::path::Path;
 use clap::{App, Arg};
 use indicatif::{ProgressBar, ProgressStyle};
 
+fn attach_optimal_pla_epsilon(models: &str, epsilon: Option<usize>) -> String {
+    let epsilon = match epsilon {
+        Some(v) => v,
+        None => return models.to_string(),
+    };
+
+    models
+        .split(',')
+        .map(|layer| {
+            if layer == "optimal_pla" {
+                format!("optimal_pla:{}", epsilon)
+            } else {
+                layer.to_string()
+            }
+        })
+        .collect::<Vec<_>>()
+        .join(",")
+}
+
 fn main() {
     env_logger::init();
 
@@ -106,6 +125,10 @@ fn main() {
              .long("optimize")
              .value_name("file")
              .help("Search for Pareto efficient RMI configurations. Specify the name of the output file."))
+        .arg(Arg::with_name("epsilon")
+             .long("epsilon")
+             .value_name("N")
+             .help("Epsilon for optimal_pla layers. Applied when a layer is specified as plain optimal_pla."))
         .get_matches();
 
     // set the max number of threads to 4 by default, otherwise Rayon goes
@@ -124,6 +147,10 @@ fn main() {
     let data_dir = matches.value_of("data-path").unwrap_or("rmi_data");
     let output_dir = matches.value_of("output-path").unwrap_or(".");
     let binary_output = matches.value_of("binary-output").map(|s| s.to_string());
+    let pla_epsilon = matches.value_of("epsilon").map(|v| {
+        v.parse::<usize>()
+            .expect("--epsilon must be a non-negative integer")
+    });
 
     if matches.value_of("namespace").is_some() && matches.value_of("param-grid").is_some() {
         panic!("Can only specify one of namespace or param-grid");
@@ -208,7 +235,8 @@ fn main() {
         let mut to_test = Vec::new();
         if let JsonValue::Array(v) = pg {
             for el in v {
-                let layers = String::from(el["layers"].as_str().unwrap());
+                let layers =
+                    attach_optimal_pla_epsilon(el["layers"].as_str().unwrap(), pla_epsilon);
                 let branching = el["branching factor"].as_u64().unwrap();
                 let namespace = match el["namespace"].as_str() {
                     Some(s) => Some(String::from(s)),
@@ -299,7 +327,8 @@ fn main() {
         let mut trained_model = match matches.value_of("max-size") {
             None => {
                 // assume they gave a model spec
-                let models = matches.value_of("models").unwrap();
+                let models =
+                    attach_optimal_pla_epsilon(matches.value_of("models").unwrap(), pla_epsilon);
                 let branch_factor = matches
                     .value_of("branching factor")
                     .unwrap()
@@ -307,7 +336,7 @@ fn main() {
                     .unwrap();
 
                 let trained_model = match matches.value_of("bounded") {
-                    None => dynamic!(train, data, models, branch_factor),
+                    None => dynamic!(train, data, &models, branch_factor),
                     Some(s) => {
                         let line_size = s
                             .parse::<usize>()
@@ -315,7 +344,7 @@ fn main() {
                         let d_u64 = data
                             .into_u64()
                             .expect("Can only construct a bounded RMI on u64 data.");
-                        train_bounded(&d_u64, models, branch_factor, line_size)
+                        train_bounded(&d_u64, &models, branch_factor, line_size)
                     }
                 };
                 trained_model
