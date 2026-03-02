@@ -14,7 +14,6 @@ use load::{load_data, DataType};
 use rmi_lib::optimizer;
 use rmi_lib::KeyType;
 use rmi_lib::RMIModel;
-use rmi_lib::RMIModel;
 use rmi_lib::{train, train_bounded};
 
 use json::*;
@@ -147,7 +146,6 @@ fn main() {
 
     let data_dir = matches.value_of("data-path").unwrap_or("rmi_data");
     let output_dir = matches.value_of("output-path").unwrap_or(".");
-    let binary_output = matches.value_of("binary-output").map(|s| s.to_string());
     let binary_output = matches.value_of("binary-output").map(|s| s.to_string());
     let pla_epsilon = matches.value_of("epsilon").map(|v| {
         v.parse::<usize>()
