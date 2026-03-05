@@ -372,12 +372,14 @@ pub struct OptimalPLAModel {
 impl OptimalPLAModel {
     pub fn new<T: TrainingKey>(data: &RMITrainingData<T>) -> OptimalPLAModel {
         Self::with_epsilon(data, DEFAULT_EPSILON)
+        
     }
 
     pub fn with_epsilon<T: TrainingKey>(
         data: &RMITrainingData<T>,
         epsilon: usize,
     ) -> OptimalPLAModel {
+        // eprintln!("Building Optimal PLA model with epsilon={}", epsilon);
         let (intercepts, slopes, boundaries) = build_segments(data, epsilon);
         OptimalPLAModel {
             epsilon,
