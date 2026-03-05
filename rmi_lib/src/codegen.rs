@@ -410,14 +410,36 @@ pub fn rmi_size(rmi: &TrainedRMI) -> u64 {
     // compute the RMI size (used in the header, compute here before consuming)
     let mut num_total_bytes = 0;
     for layer in rmi.rmi.iter() {
-        let model_on_this_layer_size: usize = layer[0].params().iter().map(|p| p.size()).sum();
-        
-        // assume all models on this layer have the same size
-        num_total_bytes += model_on_this_layer_size * layer.len();
+        if layer[0].model_name() == "optimal_pla" {
+            // optimal_pla leaf models can have different segment counts, so account for
+            // each model's arrays independently.
+            num_total_bytes += layer
+                .iter()
+                .map(|model| model.params().iter().map(|p| p.size()).sum::<usize>())
+                .sum::<usize>();
+        } else {
+            let model_on_this_layer_size: usize = layer[0].params().iter().map(|p| p.size()).sum();
+
+            // assume all models on this layer have the same size
+            num_total_bytes += model_on_this_layer_size * layer.len();
+        }
     }
 
     if !rmi.last_layer_max_l1s.is_empty() {
-        num_total_bytes += rmi.rmi.last().unwrap().len() * 8;
+        let leaf_model_name = rmi
+            .rmi
+            .last()
+            .and_then(|leaf_models| leaf_models.first())
+            .map(|leaf| leaf.model_name())
+            .unwrap_or("");
+
+        if leaf_model_name == "optimal_pla" {
+            // For optimal_pla leaves, the configured epsilon acts as the bounded error,
+            // so account for one shared error value instead of per-leaf L1 entries.
+            num_total_bytes += std::mem::size_of::<u64>();
+        } else {
+            num_total_bytes += rmi.rmi.last().unwrap().len() * 8;
+        }
     }
 
     if rmi.cache_fix.is_some() {

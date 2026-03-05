@@ -10,6 +10,7 @@ rmi_models/
 
 binary_models/
 rmi_tests/
+include/
 
 
 .vscode/
