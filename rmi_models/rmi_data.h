@@ -1,5 +1,0 @@
-namespace rmi {
-const double L0_PARAMETER0 = 49.499998002109486;
-const double L0_PARAMETER1 = 0.0000000000000000040799333317317634;
-char* L1_PARAMETERS;
-} // namespace

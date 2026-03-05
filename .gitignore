@@ -9,6 +9,8 @@ binary_models/
 rmi_models/
 
 binary_models/
+rmi_tests/
+
 
 .vscode/
 
